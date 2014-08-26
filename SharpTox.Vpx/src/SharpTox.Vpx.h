@@ -4,8 +4,10 @@
 
 #include "../vpx/vpx_image.h"
 #include <stdint.h>
+#include <stdlib.h>
 
 using namespace System;
+using namespace System::Runtime::InteropServices;
 
 namespace SharpTox
 {
@@ -59,11 +61,11 @@ namespace SharpTox
 				vpx_img_free(img);
 			}
 
-			property void* Pointer
+			property IntPtr^ Pointer
 			{
-				void* get()
+				IntPtr^ get()
 				{
-					return img;
+					return gcnew IntPtr((void*)img);
 				}
 			}
 
@@ -75,9 +77,9 @@ namespace SharpTox
 				}
 			}
 
-			static VpxImage^ FromPointer(void* p)
+			static VpxImage^ FromPointer(IntPtr p)
 			{
-				return gcnew VpxImage((vpx_image_t*)p);
+				return gcnew VpxImage((vpx_image_t*)p.ToPointer());
 			}
 
 			property unsigned int h
@@ -163,9 +165,10 @@ namespace SharpTox
 				This code is licensed under GPLv3.
 			*/
 		public:
-			static void Yuv420ToRgb(VpxImage^ image, uint8_t* out)
+			static array<Byte>^ Yuv420ToRgb(VpxImage^ image, unsigned int size)
 			{
-				vpx_image_t* img = (vpx_image_t*)image->Pointer;
+				uint8_t* out = (uint8_t*)malloc(size * sizeof(uint8_t));
+				vpx_image_t* img = (vpx_image_t*)image->Pointer->ToPointer();
 
 				unsigned long int i, j;
 				for (i = 0; i < img->d_h; ++i)
@@ -186,15 +189,25 @@ namespace SharpTox
 						point[3] = ~0;
 					}
 				}
+
+				array<Byte>^ bytes = gcnew array<Byte>(size);
+				Marshal::Copy(IntPtr((void*)out), bytes, 0, size);
+
+				free(out);
+
+				return bytes;
 			}
 
-			static void RgbToYuv420(VpxImage^ image, uint8_t *rgb, uint16_t width, uint16_t height)
+			static void RgbToYuv420(VpxImage^ image, array<Byte>^ bytes, uint16_t width, uint16_t height)
 			{
 				uint16_t x, y;
 				uint8_t *p;
 				uint8_t r, g, b;
 
-				vpx_image_t* img = (vpx_image_t*)image->Pointer;
+				pin_ptr<uint8_t> ptr = &bytes[0];
+				uint8_t* rgb = ptr;
+
+				vpx_image_t* img = (vpx_image_t*)image->Pointer->ToPointer();
 
 				uint8_t* plane_y = img->planes[0];
 				uint8_t* plane_u = img->planes[1];
