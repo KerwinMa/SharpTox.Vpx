@@ -163,9 +163,9 @@ namespace SharpTox
 				This code is licensed under GPLv3.
 			*/
 		public:
-			static void Yuv420ToRgb(VpxImage image, uint8_t* out)
+			static void Yuv420ToRgb(VpxImage^ image, uint8_t* out)
 			{
-				vpx_image_t* img = (vpx_image_t*)image.Pointer;
+				vpx_image_t* img = (vpx_image_t*)image->Pointer;
 
 				unsigned long int i, j;
 				for (i = 0; i < img->d_h; ++i)
@@ -188,13 +188,13 @@ namespace SharpTox
 				}
 			}
 
-			static void RgbToYuv420(VpxImage image, uint8_t *rgb, uint16_t width, uint16_t height)
+			static void RgbToYuv420(VpxImage^ image, uint8_t *rgb, uint16_t width, uint16_t height)
 			{
 				uint16_t x, y;
 				uint8_t *p;
 				uint8_t r, g, b;
 
-				vpx_image_t* img = (vpx_image_t*)image.Pointer;
+				vpx_image_t* img = (vpx_image_t*)image->Pointer;
 
 				uint8_t* plane_y = img->planes[0];
 				uint8_t* plane_u = img->planes[1];
