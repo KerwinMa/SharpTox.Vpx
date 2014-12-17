@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../vpx/vpx_image.h"
+#include "vpx_image.h"
 #include <stdint.h>
 #include <stdlib.h>
 
